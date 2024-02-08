@@ -30,32 +30,45 @@ paths:
           description: item created
         "400":
           description: "invalid input, object invalid"
-    # get:
-    #   tags:
-    #   - devices
-    #   summary: retrieves power usage readings
-    #   description: Retrieves power usage readings from the system
-    #   operationId: app.retrieve_power_usage_readings
-    #   parameters:
-    #   - name: device_id
-    #     in: query
-    #     description: ID of the device to retrieve readings for
-    #     required: false
-    #     schema:
-    #       type: string
-    #       format: uuid
-    #       example: 
-    #   responses:
-    #     "200":
-    #       description: successful operation
-    #       content:
-    #         application/json:
-    #           schema:
-    #             type: array
-    #             items:
-    #               $ref: '#/components/schemas/PowerUsageReading'
-    #     "400":
-    #       description: "invalid input, object invalid"
+    get:
+      tags:
+      - devices
+      summary: retrieves power usage readings
+      description: Retrieves power usage readings from the system
+      operationId: app.retrieve_power_usage_readings
+      parameters:
+      - name: start_timestamp
+        in: query
+        description: The start timestamp to filter the readings
+        schema:
+          type: string
+          format: date-time
+          example: 2024-01-04T09:12:33.001Z
+      - name: end_timestamp
+        in: query
+        description: The end timestamp to filter the readings
+        schema:
+          type: string
+          format: date-time
+          example: 2024-01-04T10:12:33.001Z
+      responses:
+        "200":
+          description: successful retrieval of power_usage readings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PowerUsageReading'
+        "400":
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
   /readings/location:
     post:
       tags:
@@ -74,6 +87,45 @@ paths:
           description: item created
         "400":
           description: "invalid input, object invalid"
+    get:
+      tags:
+      - devices
+      summary: retrieves location readings
+      description: Retrieves location readings from the system
+      operationId: app.retrieve_location_readings
+      parameters:
+      - name: start_timestamp
+        in: query
+        description: The start timestamp to filter the readings
+        schema:
+          type: string
+          format: date-time
+          example: 2024-01-04T09:12:33.001Z
+      - name: end_timestamp
+        in: query
+        description: The end timestamp to filter the readings
+        schema:
+          type: string
+          format: date-time
+          example: 2024-01-04T10:12:33.001Z
+      responses:
+        "200":
+          description: successful retrieval of location readings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LocationReading'
+        "400":
+          description: invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
 components:
   schemas:
     PowerUsageReading:
