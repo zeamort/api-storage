@@ -24,12 +24,14 @@ with open('log_conf.yml', 'r') as f:
 # Create a logger for this file
 logger = logging.getLogger('basicLogger')
 
+# Create the database connection
 DB_ENGINE = create_engine(f"mysql+pymysql://"
                           f"{app_config['datastore']['user']}:"
                           f"{app_config['datastore']['password']}@"
                           f"{app_config['datastore']['hostname']}:"
                           f"{app_config['datastore']['port']}/"
                           f"{app_config['datastore']['db']}")
+
 Base.metadata.bind = DB_ENGINE
 DB_SESSION = sessionmaker(bind=DB_ENGINE)
 
@@ -78,6 +80,48 @@ def report_location_reading(body):
     session.close()
 
     return NoContent, 201
+
+
+def retrieve_power_usage_readings(start_timestamp, end_timestamp):
+    session = DB_SESSION()
+
+    start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%S")
+    end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%S")
+
+    readings = session.query(PowerUsage).filter(PowerUsage.date_created >= start_timestamp_datetime,
+                                               PowerUsage.date_created < end_timestamp_datetime)
+    
+    results_list = []
+
+    for reading in readings:
+        results_list.append(reading.to_dict())
+
+    session.close()
+
+    logger.info("Query for power usage readings after %s returns %d results", start_timestamp, len(results_list))
+
+    return results_list, 200
+
+
+def retrieve_location_readings(start_timestamp, end_timestamp):
+    session = DB_SESSION()
+
+    start_timestamp_datetime = datetime.datetime.strptime(start_timestamp, "%Y-%m-%dT%H:%M:%S")
+    end_timestamp_datetime = datetime.datetime.strptime(end_timestamp, "%Y-%m-%dT%H:%M:%S")
+
+    readings = session.query(Location).filter(Location.date_created >= start_timestamp_datetime, 
+                                              Location.date_created < end_timestamp_datetime)
+    
+    results_list = []
+
+    for reading in readings:
+        results_list.append(reading.to_dict())
+
+    session.close()
+
+    logger.info("Query for location readings after %s returns %d results", start_timestamp, len(results_list))
+
+    return results_list, 200
 
 
 app = connexion.FlaskApp(__name__, specification_dir='')
